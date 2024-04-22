@@ -11,7 +11,7 @@ const Home = () => {
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyAMUxDj9WCuMteuqPYTuv3CKzf-SvNxl3Y',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
     libraries: ["places"],
   });
 
