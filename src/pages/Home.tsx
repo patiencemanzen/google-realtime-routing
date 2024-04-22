@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import '../assets/css/App.css';
 import { useLoadScript, Marker } from '@react-google-maps/api';
-import SearchBox from '../components/SearchBox';
-import Map from '../components/Map';
+import SearchBox from '../components/Map/SearchBox';
+import Map from '../components/Map/Map';
 
 const Home = () => {
   const [origin, setOrigin] = useState<google.maps.LatLng | null>(null);
