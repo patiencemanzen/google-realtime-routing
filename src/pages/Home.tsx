@@ -9,6 +9,7 @@ import CancelRouting from '../components/Map/CancelRouting';
 const Home = () => {
   const [origin, setOrigin] = useState<google.maps.LatLng | null>(null);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
+  const [destinationName, setDestinationName] = useState<String | null>(null);
   const [response, setResponse] = useState(null);
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   const [isRouting, setIsRouting] = useState(false);
@@ -91,6 +92,7 @@ const Home = () => {
       const place = places && places[0];
       if (place && place.geometry && place.geometry.location) {
         setDestination(place.geometry.location);
+        setDestinationName(place.name ?? null);
       }
     }
   };
@@ -121,6 +123,7 @@ const Home = () => {
   return (
     <div className='relative'>
       <div className='absolute top-2 right-20 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
+        <h3 className='font-bold text-xl mb-3'>{isRouting ? `Heading to ${destinationName}` : 'Search New Places to Explore'}</h3>        
         <SearchBox onLoad={onSearchBoxLoaded} onPlacesChanged={onPlacesChanged} />
         <div className='mt-2 flex justify-between'>
           {destination && !isRouting && <StartRouting onClick={startRouting} />}
@@ -137,6 +140,7 @@ const Home = () => {
       {isRouting && (
         <div className='absolute bottom-2 left-20 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
           <div className='rounded-[10px] bg-white p-5'>
+            <h3 className='font-bold text-xl mb-3'>Step by step Guide:</h3>
             {steps.map((step: string, index: number) => (
               <p key={index} dangerouslySetInnerHTML={{ __html: step }} />
             ))}
