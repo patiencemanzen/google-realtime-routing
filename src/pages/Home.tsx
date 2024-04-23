@@ -4,6 +4,7 @@ import { useLoadScript, Marker } from '@react-google-maps/api';
 import SearchBox from '../components/Map/SearchBox';
 import Map from '../components/Map/Map';
 import StartRouting from '../components/Map/StartRouting';
+import CancelRouting from '../components/Map/CancelRouting';
 
 const Home = () => {
   const [origin, setOrigin] = useState<google.maps.LatLng | null>(null);
@@ -12,6 +13,7 @@ const Home = () => {
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   const [isRouting, setIsRouting] = useState(false);
   const [steps, setSteps] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState<google.maps.LatLngLiteral | null>(null);
   
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
@@ -26,6 +28,26 @@ const Home = () => {
       setOrigin(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
     });
   }, []);
+
+  useEffect(() => {
+    let watchId: number | null = null;
+
+    if (isRouting) {
+      // To display the user's real-time location while routing
+      watchId = navigator.geolocation.watchPosition((position) => {
+        setCurrentLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    }
+
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [isRouting]);
 
   /**
    * When the directions service returns a response, 
@@ -82,6 +104,10 @@ const Home = () => {
     setIsRouting(true);
   };
 
+  const cancelRouting = () => {
+    setIsRouting(false);
+  };
+
   // Show an error message if the maps failed to load
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -94,13 +120,16 @@ const Home = () => {
 
   return (
     <div className='relative'>
-      <div className='absolute top-2 right-1/4 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
+      <div className='absolute top-2 right-20 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
         <SearchBox onLoad={onSearchBoxLoaded} onPlacesChanged={onPlacesChanged} />
-        {destination && <StartRouting onClick={startRouting} />}
+        <div className='mt-2 flex justify-between'>
+          {destination && !isRouting && <StartRouting onClick={startRouting} />}
+          {isRouting && <CancelRouting onClick={cancelRouting} />}
+        </div>
       </div>
 
       <div className='map-container'>
-        <Map origin={origin} destination={destination} response={response} directionsCallback={directionsCallback}>
+        <Map origin={origin} destination={destination} currentLocation={currentLocation} response={response} directionsCallback={directionsCallback}>
           {origin && <Marker position={origin} />}
         </Map>  
       </div>
