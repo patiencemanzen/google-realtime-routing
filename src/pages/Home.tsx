@@ -13,6 +13,7 @@ const Home = () => {
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
   const [isRouting, setIsRouting] = useState(false);
   const [steps, setSteps] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState<google.maps.LatLngLiteral | null>(null);
   
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
@@ -20,13 +21,31 @@ const Home = () => {
   });
 
   useEffect(() => {
+    let watchId: number | null = null;
+
     /**
      * Get the user's current location and set it as the origin.
      */
     navigator.geolocation.getCurrentPosition((position) => {
       setOrigin(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
     });
-  }, []);
+
+    if (isRouting) {
+      // To display the user's real-time location while routing
+      watchId = navigator.geolocation.watchPosition((position) => {
+        setCurrentLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    }
+
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [isRouting]);
 
   /**
    * When the directions service returns a response, 
@@ -108,7 +127,7 @@ const Home = () => {
       </div>
 
       <div className='map-container'>
-        <Map origin={origin} destination={destination} response={response} directionsCallback={directionsCallback}>
+        <Map origin={origin} destination={destination} currentLocation={currentLocation} response={response} directionsCallback={directionsCallback}>
           {origin && <Marker position={origin} />}
         </Map>  
       </div>
