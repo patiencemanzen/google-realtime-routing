@@ -1,6 +1,21 @@
-# Getting Started with Create React App
+# Real-Time Routing Application
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Description
+
+This is a real-time routing application built with React and the Google Maps API. It allows users to select a destination and then provides live routing from the user's current location to the selected destination.
+
+## Features
+
+- Real-time location tracking
+- Live routing with turn-by-turn navigation
+- Custom markers for origin and destination
+- Search functionality for selecting destination
+
+## Maintainer
+
+This project is maintained by ```Manirabona Patience```. You can contact him at [hseal419@gmail.com](mailto:hseal419@gmail.com).
 
 ## Available Scripts
 
