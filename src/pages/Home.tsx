@@ -21,14 +21,16 @@ const Home = () => {
   });
 
   useEffect(() => {
-    let watchId: number | null = null;
-
     /**
      * Get the user's current location and set it as the origin.
      */
     navigator.geolocation.getCurrentPosition((position) => {
       setOrigin(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
     });
+  }, []);
+
+  useEffect(() => {
+    let watchId: number | null = null;
 
     if (isRouting) {
       // To display the user's real-time location while routing
@@ -118,7 +120,7 @@ const Home = () => {
 
   return (
     <div className='relative'>
-      <div className='absolute top-2 right-1/4 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
+      <div className='absolute top-2 right-20 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
         <SearchBox onLoad={onSearchBoxLoaded} onPlacesChanged={onPlacesChanged} />
         <div className='mt-2 flex justify-between'>
           {destination && !isRouting && <StartRouting onClick={startRouting} />}
