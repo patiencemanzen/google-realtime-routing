@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import '../assets/css/App.css';
 import { useLoadScript, Marker } from '@react-google-maps/api';
-import SearchBox from '../components/SearchBox';
-import Map from '../components/Map';
+import SearchBox from '../components/Map/SearchBox';
+import Map from '../components/Map/Map';
+import StartRouting from '../components/Map/StartRouting';
 
 const Home = () => {
   const [origin, setOrigin] = useState<google.maps.LatLng | null>(null);
   const [destination, setDestination] = useState<google.maps.LatLng | null>(null);
   const [response, setResponse] = useState(null);
   const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
+  const [isRouting, setIsRouting] = useState(false);
+  const [steps, setSteps] = useState([]);
   
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
@@ -34,6 +37,9 @@ const Home = () => {
     if (res !== null) {
       if (res.status === 'OK') {
         setResponse(res);
+
+        const newSteps = res.routes[0].legs[0].steps.map((step: any) => step.instructions);
+        setSteps(newSteps);
       } else {
         console.log('response: ', res);
       }
@@ -67,6 +73,15 @@ const Home = () => {
     }
   };
 
+  /**
+   * Set the isRouting state to true to start routing.
+   * 
+   * @returns void
+   */
+  const startRouting = () => {
+    setIsRouting(true);
+  };
+
   // Show an error message if the maps failed to load
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -81,6 +96,7 @@ const Home = () => {
     <div className='relative'>
       <div className='absolute top-2 right-1/4 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
         <SearchBox onLoad={onSearchBoxLoaded} onPlacesChanged={onPlacesChanged} />
+        {destination && <StartRouting onClick={startRouting} />}
       </div>
 
       <div className='map-container'>
@@ -88,6 +104,16 @@ const Home = () => {
           {origin && <Marker position={origin} />}
         </Map>  
       </div>
+
+      {isRouting && (
+        <div className='absolute bottom-2 left-20 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
+          <div className='rounded-[10px] bg-white p-5'>
+            {steps.map((step: string, index: number) => (
+              <p key={index} dangerouslySetInnerHTML={{ __html: step }} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
