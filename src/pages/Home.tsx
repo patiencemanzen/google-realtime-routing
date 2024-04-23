@@ -4,6 +4,7 @@ import { useLoadScript, Marker } from '@react-google-maps/api';
 import SearchBox from '../components/Map/SearchBox';
 import Map from '../components/Map/Map';
 import StartRouting from '../components/Map/StartRouting';
+import CancelRouting from '../components/Map/CancelRouting';
 
 const Home = () => {
   const [origin, setOrigin] = useState<google.maps.LatLng | null>(null);
@@ -82,6 +83,10 @@ const Home = () => {
     setIsRouting(true);
   };
 
+  const cancelRouting = () => {
+    setIsRouting(false);
+  };
+
   // Show an error message if the maps failed to load
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -96,7 +101,10 @@ const Home = () => {
     <div className='relative'>
       <div className='absolute top-2 right-1/4 z-20 bg-slate-300 p-4 w-80 rounded-[10px]'>
         <SearchBox onLoad={onSearchBoxLoaded} onPlacesChanged={onPlacesChanged} />
-        {destination && <StartRouting onClick={startRouting} />}
+        <div className='mt-2 flex justify-between'>
+          {destination && !isRouting && <StartRouting onClick={startRouting} />}
+          {isRouting && <CancelRouting onClick={cancelRouting} />}
+        </div>
       </div>
 
       <div className='map-container'>
